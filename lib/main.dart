@@ -10,6 +10,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -94,6 +95,7 @@ class _WebViewExampleState extends State<WebViewExample> {
   late final WebViewController _controller;
 
   int reloadOnce = 0;
+  int timeLapse = 0;
   @override
   void initState() {
     super.initState();
@@ -176,24 +178,15 @@ Page resource error:
   }
 
   Future<bool> _onWillPop() async {
-    return (await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Are you sure?'),
-            content: const Text('Do you want to exit an App'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('No'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Yes'),
-              ),
-            ],
-          ),
-        )) ??
-        false;
+    final String res = await _controller
+        .runJavaScriptReturningResult("window.testF()") as String;
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if (now - timeLapse > 1000) {
+      timeLapse = now;
+      Fluttertoast.showToast(msg: "한번 더 누르면 앱이 종료됩니다");
+      return false;
+    }
+    return true;
   }
 
   @override
