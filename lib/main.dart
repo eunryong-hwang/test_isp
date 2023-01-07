@@ -128,13 +128,13 @@ class _WebViewExampleState extends State<WebViewExample> {
           },
           onPageFinished: (String url) {
             debugPrint('Page finished loading: $url');
-            debugPrint('reloadOnce => ' + reloadOnce.toString());
-            if (reloadOnce < 3) {
-              setState(() {
-                reloadOnce++;
-              });
-              controller.reload();
-            }
+            // debugPrint('reloadOnce => ' + reloadOnce.toString());
+            // if (reloadOnce < 3) {
+            //   setState(() {
+            //     reloadOnce++;
+            //   });
+            //   controller.reload();
+            // }
             FlutterNativeSplash.remove();
           },
           onWebResourceError: (WebResourceError error) {
@@ -164,7 +164,7 @@ Page resource error:
           );
         },
       )
-      ..loadRequest(Uri.parse('https://m.prod.habit-leader.com'));
+      ..loadRequest(Uri.parse('https://m.prod.habit-leader.com/#/auth/login'));
 
     // #docregion platform_features
     if (controller.platform is AndroidWebViewController) {
