@@ -12,6 +12,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 // #docregion platform_imports
@@ -84,6 +86,9 @@ const String kTransparentBackgroundPage = '''
   </html>
 ''';
 
+const String token =
+    'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJRRUVkbHRieVhpN2RBVWNMYjUwM1Bib1dzUDRxM2xZYlZzd3dRb00waTE0In0.eyJleHAiOjE2NzQwNTg1MjksImlhdCI6MTY3NDA1NDkyOSwiYXV0aF90aW1lIjoxNjc0MDQ3MjcxLCJqdGkiOiI4NTJjNjc5Ni1mOGI3LTQ5MmMtYjQ0OS05YWE4MTg4ZmM3YmUiLCJpc3MiOiJodHRwczovL2FjY291bnRzLmlkLWltLmRldi9hdXRoL3JlYWxtcy9oZWFsZXJiIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImY6OWQ0YWM1YmItNDU2Yy00OGQxLThiN2QtNDI3MjZlMWUzODgzOjAwbXhfbnE5cDk3N3Rfc19kYnN6dm5fZF9vX3hfb2JfeSIsInR5cCI6IkJlYXJlciIsImF6cCI6InRlc3QtY2xpZW50Iiwic2Vzc2lvbl9zdGF0ZSI6ImNmMGEzNWI1LThjZDAtNDBmYi1hYzVlLTgzNDk0OTUyZTExOSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJST0xFX1VTRVIiLCJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiY2YwYTM1YjUtOGNkMC00MGZiLWFjNWUtODM0OTQ5NTJlMTE5IiwidWlkIjoiMDBteE5xOXA5Nzd0U0Ric3p2bkRPWE9iWSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6Iu2ZqeydgOuztSIsInByZWZlcnJlZF91c2VybmFtZSI6IjAwbXhfbnE5cDk3N3Rfc19kYnN6dm5fZF9vX3hfb2JfeSIsImdpdmVuX25hbWUiOiLtmansnYDrs7UiLCJmYW1pbHlfbmFtZSI6IiIsImVtYWlsIjoiZWdpcmxhc21AbmF2ZXIuY29tIn0.LGsJYsFUmbHBYZehbZvE1WjXAPskhH1YQibx4Ufr_5QFi6TGj8jofgx6qmsnnh6q6uJkYsiz_FJpd4S9e3OkGZJGm2fdJf8hkRFltUIzYP2abFuUo3bFjyenmd3V42nVpZ8nZ2KVaFNa6dupuAOb3m_5nneV8YeuC0U7vpo922v-KT0i1ivh_QgYT0jn02q_pgj5mF8UMW1fksjU_ozUS8O6bJt7b_xRkhajEn3_S6M4dtvvQpI7xwpynJ_0F8ry-CiIJIgbf8IYmcKWV0p8aZJWC6fHaIBJK_8YefaGB9CAFCNMR2pkKsbH0SWPTPP9clnUvbNgXdxc78Z26c74bg';
+
 class WebViewExample extends StatefulWidget {
   const WebViewExample({super.key});
 
@@ -115,6 +120,8 @@ class _WebViewExampleState extends State<WebViewExample> {
         WebViewController.fromPlatformCreationParams(params);
     // #enddocregion platform_features
 
+    var lastTid = "";
+
     controller
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
@@ -123,18 +130,25 @@ class _WebViewExampleState extends State<WebViewExample> {
           onProgress: (int progress) {
             debugPrint('WebView is loading (progress : $progress%)');
           },
-          onPageStarted: (String url) {
+          onPageStarted: (String url) async {
             debugPrint('Page started loading: $url');
+            // if (url.contains("isp")) {
+            //   if (await canLaunchUrlString(
+            //       'ispmobile://TID=INIMX_AISPIDIMpay00020230119004554455773')) {
+            //     launchUrlString(
+            //         'ispmobile://TID=INIMX_AISPIDIMpay00020230119004554455773');
+            //   } else {
+            //     print('can not launch');
+            //   }
+            //   // launchUrl(Uri.parse(
+            //   //     'ispmobile://TID=INIMX_AISPIDIMpay00020230119004554455773'));
+            // }
+            controller
+                .runJavaScript("localStorage['hb-test-token'] = '${token}'");
           },
           onPageFinished: (String url) {
             debugPrint('Page finished loading: $url');
-            // debugPrint('reloadOnce => ' + reloadOnce.toString());
-            // if (reloadOnce < 3) {
-            //   setState(() {
-            //     reloadOnce++;
-            //   });
-            //   controller.reload();
-            // }
+
             FlutterNativeSplash.remove();
           },
           onWebResourceError: (WebResourceError error) {
@@ -147,6 +161,31 @@ Page resource error:
           ''');
           },
           onNavigationRequest: (NavigationRequest request) {
+            if (request.url.contains("wcardAcsAuthResult.ini")) {
+              int nStart = request.url.indexOf("sKey=");
+              print("lalallala => " + nStart.toString());
+              String cutString =
+                  request.url.substring(nStart + 15, request.url.length);
+              lastTid = cutString;
+              print(cutString);
+            }
+            if (request.url.startsWith("kb-acp") ||
+                request.url.startsWith("ispmobile") ||
+                request.url.contains('appCallPage.ini')) {
+              try {
+                // launchUrl(Uri.parse(request.url));
+                const tid = "IDIMpay00020230118234009435439";
+                /////             INIMX_ISP_IDIMpay00020230119004051
+                //ispmobile://TID=INIMX_AISPIDIMpay00020230119003008885762
+                // launchUrl(Uri.parse("ispmobile://TID=INIMX_AISP$lastTid"));
+                launchUrl(Uri.parse(
+                    "ispmobile://TID=INIMX_AISPIDIMpay00020230119004554455773"));
+              } catch (e, s) {
+                print("error launch url");
+              }
+              return NavigationDecision.navigate;
+            }
+
             if (request.url.startsWith('https://www.youtube.com/')) {
               debugPrint('blocking navigation to ${request.url}');
               return NavigationDecision.prevent;
@@ -164,7 +203,8 @@ Page resource error:
           );
         },
       )
-      ..loadRequest(Uri.parse('https://m.prod.habit-leader.com/#/auth/login'));
+      ..loadRequest(Uri.parse(
+          'https://app.id-im.dev/diagnosis/consult/payment?category=D&addCode=HCC00008,HCC00009&prodCode=CRF0000003&presriptionCode=PR00000008'));
 
     // #docregion platform_features
     if (controller.platform is AndroidWebViewController) {
@@ -172,6 +212,7 @@ Page resource error:
       (controller.platform as AndroidWebViewController)
           .setMediaPlaybackRequiresUserGesture(false);
     }
+
     // #enddocregion platform_features
 
     _controller = controller;
@@ -205,7 +246,7 @@ Page resource error:
         //   ],
         // ),
         body: WebViewWidget(controller: _controller),
-        // floatingActionButton: favoriteButton(),
+        floatingActionButton: favoriteButton(),
       )),
     );
   }
@@ -217,7 +258,18 @@ Page resource error:
         // ScaffoldMessenger.of(context).showSnackBar(
         //   SnackBar(content: Text('Favorited $url')),
         // );
-        _controller.reload();
+        // await _controller
+        //     .runJavaScript("localStorage['hb-test-token'] = '${token}'");
+        // await _controller.reload();
+        // await _controller.loadRequest(Uri.parse(
+        //     'ispmobile://TID=INIMX_AISPIDIMpay00020230119004554455773'));
+        if (await canLaunchUrlString(
+            'ispmobile://TID=INIMX_AISPIDIMpay00020230119004554455773')) {
+          launchUrlString(
+              'ispmobile://TID=INIMX_AISPIDIMpay00020230119004554455773');
+        } else {
+          print('can not launch');
+        }
       },
       child: const Icon(Icons.favorite),
     );
